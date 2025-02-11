@@ -1,0 +1,9 @@
+<app-page-header titulo="Carrusel"></app-page-header>
+
+<ion-content>
+    <swiper-container  pagination= true effect="coverflow">
+        <swiper-slide *ngFor="let imagen of usarCamara.getListaUrl(); index as position">
+            <ion-img [src]="imagen"></ion-img>
+        </swiper-slide>
+    </swiper-container>
+</ion-content>   
