@@ -50,6 +50,10 @@ const routes = [
     {
         path: 'fotos',
         loadChildren: () => Promise.all(/*! import() */[__webpack_require__.e("default-src_app_components_mis-componentes_module_ts-node_modules_capacitor_core_dist_index_js"), __webpack_require__.e("src_app_pages_fotos_fotos_module_ts")]).then(__webpack_require__.bind(__webpack_require__, /*! ./pages/fotos/fotos.module */ 2916)).then(m => m.FotosPageModule)
+    },
+    {
+        path: 'voz',
+        loadChildren: () => Promise.all(/*! import() */[__webpack_require__.e("default-src_app_components_mis-componentes_module_ts-node_modules_capacitor_core_dist_index_js"), __webpack_require__.e("default-src_app_servicios_camara_service_ts"), __webpack_require__.e("src_app_pages_voz_voz_module_ts")]).then(__webpack_require__.bind(__webpack_require__, /*! ./pages/voz/voz.module */ 8574)).then(m => m.VozPageModule)
     }
 ];
 let AppRoutingModule = class AppRoutingModule {

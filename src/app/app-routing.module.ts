@@ -34,7 +34,12 @@ const routes: Routes = [
   {
     path: 'fotos',
     loadChildren: () => import('./pages/fotos/fotos.module').then( m => m.FotosPageModule)
+  },
+  {
+    path: 'voz',
+    loadChildren: () => import('./pages/voz/voz.module').then( m => m.VozPageModule)
   }
+
 ];
 
 @NgModule({
