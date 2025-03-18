@@ -2,6 +2,7 @@ import { CamaraService } from './../../servicios/camara.service';
 import { SpeechService } from './../../servicios/speech.service';
 import { Component, OnInit } from '@angular/core';
 import { SpeechRecognition } from '@capacitor-community/speech-recognition';
+import { Share } from '@capacitor/share';
 
 @Component({
   selector: 'app-voz',
@@ -10,46 +11,57 @@ import { SpeechRecognition } from '@capacitor-community/speech-recognition';
 })
 export class VozPage implements OnInit {
 
-  constructor(public speechRecognition: SpeechService, public camara: CamaraService) { }
+  recording = false;
+  photo: string | null | undefined = null;
+
+  constructor(public speechRecognition: SpeechService, public camara: CamaraService) {
+    SpeechRecognition.requestPermissions();
+   }
 
   ngOnInit() {
   }
   
 
-  public async escuchar() {
+  async startRecognition() {
+    const { available } = await SpeechRecognition.available();
 
-    console.log("Boton pulsado")
-    await SpeechRecognition.available();
-    console.log("Disponible");
-    await SpeechRecognition.requestPermissions();
-    console.log("Permisos");
-
-    try {
-      await SpeechRecognition.start({
-        prompt: "Hablar",
-        maxResults: 1,
+    if (available) {
+      this.recording = true;
+      SpeechRecognition.start({
+        popup: false,
         partialResults: true,
-        language: 'es-ES',
-        popup: false
-      });
-      console.log("disponible");
+        language: 'en-US',
+    });
 
-      SpeechRecognition.addListener('partialResults', (result:any) => {
-        const transcripcion = result.matches[0];
-        console.log('Transcripcion:', transcripcion);
-        if (transcripcion.toLowerCase().includes("foto")) {
-          this.camara.sacarFoto();
-        }
-      });
+    SpeechRecognition.addListener ('partialResults', (data:any) => {
+      console.log('partialResults was fired', data.matches);
+      console.log('Posición 0: ', data.matches[0]);
 
-      //await SpeechRecognition.stop();
-      //SpeechRecognition.removeAllListeners();
-      
-    } catch (error) {
-      console.error('Error con el inicio de reconocimiento de voz', error);
+      if (data.matches[0]?.toLowerCase() === 'foto' || data.matches[0]?.toLowerCase() === 'photo') {
+        this.camara.sacarFoto();
+      }
+    });
     }
-    console.log("Reconocimiento de voz finalizado");
-  };
+  }
+  async stopRecognition() {
+    this.recording =false;
+    await SpeechRecognition.stop();
+  }
+  async sharePhoto() {
+    if (this.photo) {
+      try {
+        await Share.share({
+          title: 'Mira esta foto',
+          text: 'Te comparto una foto que tomé',
+          url: this.photo, // Usar la URL del archivo
+          dialogTitle: 'Compartir Foto',
+        });
+      } catch (error) {
+        console.error('Error al compartir la foto:', error);
+      }
+    } else {
+      console.warn('No hay foto para compartir');
+    }
+  }
 }
-
-
+  

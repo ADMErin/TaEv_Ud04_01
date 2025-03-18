@@ -93,13 +93,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "VozPage": () => (/* binding */ VozPage)
 /* harmony export */ });
-/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! tslib */ 4929);
+/* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! tslib */ 4929);
 /* harmony import */ var _voz_page_html_ngResource__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./voz.page.html?ngResource */ 5913);
 /* harmony import */ var _voz_page_scss_ngResource__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./voz.page.scss?ngResource */ 2163);
 /* harmony import */ var _servicios_camara_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./../../servicios/camara.service */ 2532);
 /* harmony import */ var _servicios_speech_service__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./../../servicios/speech.service */ 7272);
-/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! @angular/core */ 3184);
+/* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! @angular/core */ 3184);
 /* harmony import */ var _capacitor_community_speech_recognition__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @capacitor-community/speech-recognition */ 7350);
+/* harmony import */ var _capacitor_share__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! @capacitor/share */ 8921);
+
 
 
 
@@ -111,49 +113,66 @@ let VozPage = class VozPage {
     constructor(speechRecognition, camara) {
         this.speechRecognition = speechRecognition;
         this.camara = camara;
+        this.recording = false;
+        this.photo = null;
+        _capacitor_community_speech_recognition__WEBPACK_IMPORTED_MODULE_4__.SpeechRecognition.requestPermissions();
     }
     ngOnInit() {
     }
-    escuchar() {
-        return (0,tslib__WEBPACK_IMPORTED_MODULE_5__.__awaiter)(this, void 0, void 0, function* () {
-            console.log("Boton pulsado");
-            yield _capacitor_community_speech_recognition__WEBPACK_IMPORTED_MODULE_4__.SpeechRecognition.available();
-            console.log("Disponible");
-            yield _capacitor_community_speech_recognition__WEBPACK_IMPORTED_MODULE_4__.SpeechRecognition.requestPermissions();
-            console.log("Permisos");
-            try {
-                yield _capacitor_community_speech_recognition__WEBPACK_IMPORTED_MODULE_4__.SpeechRecognition.start({
-                    prompt: "Hablar",
-                    maxResults: 1,
+    startRecognition() {
+        return (0,tslib__WEBPACK_IMPORTED_MODULE_6__.__awaiter)(this, void 0, void 0, function* () {
+            const { available } = yield _capacitor_community_speech_recognition__WEBPACK_IMPORTED_MODULE_4__.SpeechRecognition.available();
+            if (available) {
+                this.recording = true;
+                _capacitor_community_speech_recognition__WEBPACK_IMPORTED_MODULE_4__.SpeechRecognition.start({
+                    popup: false,
                     partialResults: true,
-                    language: 'es-ES',
-                    popup: false
+                    language: 'en-US',
                 });
-                console.log("disponible");
-                _capacitor_community_speech_recognition__WEBPACK_IMPORTED_MODULE_4__.SpeechRecognition.addListener('partialResults', (result) => {
-                    const transcripcion = result.matches[0];
-                    console.log('Transcripcion:', transcripcion);
-                    if (transcripcion.toLowerCase().includes("foto")) {
+                _capacitor_community_speech_recognition__WEBPACK_IMPORTED_MODULE_4__.SpeechRecognition.addListener('partialResults', (data) => {
+                    var _a, _b;
+                    console.log('partialResults was fired', data.matches);
+                    console.log('Posición 0: ', data.matches[0]);
+                    if (((_a = data.matches[0]) === null || _a === void 0 ? void 0 : _a.toLowerCase()) === 'foto' || ((_b = data.matches[0]) === null || _b === void 0 ? void 0 : _b.toLowerCase()) === 'photo') {
                         this.camara.sacarFoto();
                     }
                 });
-                //await SpeechRecognition.stop();
-                //SpeechRecognition.removeAllListeners();
             }
-            catch (error) {
-                console.error('Error con el inicio de reconocimiento de voz', error);
-            }
-            console.log("Reconocimiento de voz finalizado");
         });
     }
-    ;
+    stopRecognition() {
+        return (0,tslib__WEBPACK_IMPORTED_MODULE_6__.__awaiter)(this, void 0, void 0, function* () {
+            this.recording = false;
+            yield _capacitor_community_speech_recognition__WEBPACK_IMPORTED_MODULE_4__.SpeechRecognition.stop();
+        });
+    }
+    sharePhoto() {
+        return (0,tslib__WEBPACK_IMPORTED_MODULE_6__.__awaiter)(this, void 0, void 0, function* () {
+            if (this.photo) {
+                try {
+                    yield _capacitor_share__WEBPACK_IMPORTED_MODULE_5__.Share.share({
+                        title: 'Mira esta foto',
+                        text: 'Te comparto una foto que tomé',
+                        url: this.photo,
+                        dialogTitle: 'Compartir Foto',
+                    });
+                }
+                catch (error) {
+                    console.error('Error al compartir la foto:', error);
+                }
+            }
+            else {
+                console.warn('No hay foto para compartir');
+            }
+        });
+    }
 };
 VozPage.ctorParameters = () => [
     { type: _servicios_speech_service__WEBPACK_IMPORTED_MODULE_3__.SpeechService },
     { type: _servicios_camara_service__WEBPACK_IMPORTED_MODULE_2__.CamaraService }
 ];
-VozPage = (0,tslib__WEBPACK_IMPORTED_MODULE_5__.__decorate)([
-    (0,_angular_core__WEBPACK_IMPORTED_MODULE_6__.Component)({
+VozPage = (0,tslib__WEBPACK_IMPORTED_MODULE_6__.__decorate)([
+    (0,_angular_core__WEBPACK_IMPORTED_MODULE_7__.Component)({
         selector: 'app-voz',
         template: _voz_page_html_ngResource__WEBPACK_IMPORTED_MODULE_0__,
         styles: [_voz_page_scss_ngResource__WEBPACK_IMPORTED_MODULE_1__]
@@ -252,6 +271,38 @@ const SpeechRecognition = (0,_capacitor_core__WEBPACK_IMPORTED_MODULE_0__.regist
 
 /***/ }),
 
+/***/ 8470:
+/*!***************************************************************!*\
+  !*** ./node_modules/@capacitor/share/dist/esm/definitions.js ***!
+  \***************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+
+
+/***/ }),
+
+/***/ 8921:
+/*!*********************************************************!*\
+  !*** ./node_modules/@capacitor/share/dist/esm/index.js ***!
+  \*********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "Share": () => (/* binding */ Share)
+/* harmony export */ });
+/* harmony import */ var _capacitor_core__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @capacitor/core */ 5099);
+/* harmony import */ var _definitions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./definitions */ 8470);
+
+const Share = (0,_capacitor_core__WEBPACK_IMPORTED_MODULE_0__.registerPlugin)('Share', {
+  web: () => __webpack_require__.e(/*! import() */ "node_modules_capacitor_share_dist_esm_web_js").then(__webpack_require__.bind(__webpack_require__, /*! ./web */ 3656)).then(m => new m.ShareWeb())
+});
+
+
+
+/***/ }),
+
 /***/ 2163:
 /*!****************************************************!*\
   !*** ./src/app/pages/voz/voz.page.scss?ngResource ***!
@@ -268,7 +319,7 @@ module.exports = "\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW
   \****************************************************/
 /***/ ((module) => {
 
-module.exports = "<app-page-header titulo=\"voz\"></app-page-header>\n\n<ion-content>\n  <ion-button (click)=\"escuchar()\" expand=\"block\" fill=\"clear\" shape=\"round\">\n      Grabar voz\n  </ion-button>\n</ion-content>\n";
+module.exports = "<app-page-header titulo=\"Voz\"></app-page-header>\n\n<ion-content class=\"content\">\n\n  <div class=\"control-buttons\">\n    <ion-button expand=\"full\" color=\"primary\" (click)=\"startRecognition()\" *ngIf=\"!recording\">\n      Iniciar Reconocimiento de Voz\n    </ion-button>\n    <ion-button expand=\"full\" color=\"danger\" (click)=\"stopRecognition()\" *ngIf=\"recording\">\n      Parar Reconocimiento de Voz\n    </ion-button>\n  </div>\n\n  <!-- Mostrar la foto capturada -->\n  <div *ngIf=\"photo\" class=\"photo-container\">\n    <div class=\"photo-wrapper\">\n      <img [src]=\"photo\" alt=\"Foto capturada\" />\n    </div>\n    <ion-button expand=\"full\" color=\"tertiary\" (click)=\"sharePhoto()\">Compartir Foto</ion-button>\n  </div>\n\n</ion-content>\n";
 
 /***/ })
 
